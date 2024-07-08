@@ -1,0 +1,196 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet"
+        integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"
+        integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz"
+        crossorigin="anonymous"></script>
+    <style>
+    </style>
+</head>
+<body>
+    <nav class="mb-5 d-flex w-100">
+        <h1 class="p-3 col-9">Admin Page</h1>
+        <!-- Button trigger modal -->
+        <div class="col-3 me-1">
+            <a href="../login.html" class="btn btn-secondary my-4 me-3">
+                Logout
+            </a>
+            <button type="button" class="btn btn-primary my-4" data-bs-toggle="modal" data-bs-target="#exampleModal">
+                Add Product
+            </button>
+            <a href="../user/user.html" class="btn btn-primary my-4 ms-3">
+                Go To User Page
+            </a>
+        </div>
+        <!-- Modal -->
+        <div class="modal fade" id="exampleModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h1 class="modal-title fs-5" id="exampleModalLabel">Add Product</h1>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <div class="modal-body">
+                        <div class="form-group">
+                            <label for="addPname">Product Name</label>
+                            <input type="text" class="form-control" placeholder="Enter product name" id="addPname" />
+                        </div>
+                        <div class="form-group">
+                            <label for="addPrice">Price</label>
+                            <input type="number" class="form-control" placeholder="price" id="addPrice" />
+                        </div>
+                        <div class="form-group">
+                            <label for="addDesc">Description</label>
+                            <input type="text" class="form-control" placeholder="Description" id="addDesc" />
+                        </div>
+                        <div class="form-group">
+                            <label for="addImg">Image</label>
+                            <input type="text" class="form-control" placeholder="img https://" id="addImg" />
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                        <button type="button" class="btn btn-primary" onclick="addProduct()">Add</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </nav>
+    <div class="product col-7 ms-5">
+        <table class="table col-8">
+            <thead class="table-dark">
+                <tr>
+                    <th>id</th>
+                    <th>Img</th>
+                    <th>Product Name</th>
+                    <th>Price</th>
+                    <th>Description</th>
+                    <th>Edit</th>
+                    <th>Delete</th>
+                    <th>Active</th>
+                </tr>
+            </thead>
+            <tbody id="tbody">
+            </tbody>
+        </table>
+    </div>
+    <div class="modal fade" id="editModal" tabindex="-1" aria-labelledby="editModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h1 class="modal-title fs-5" id="editModalLabel">Edit Product</h1>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <input type="hidden" id="editIndex">
+                    <div class="form-group">
+                        <label for="editPname">Product Name</label>
+                        <input type="text" class="form-control" id="editPname" placeholder="Enter Product Name">
+                    </div>
+                    <div class="form-group">
+                        <label for="editPrice">Price</label>
+                        <input type="number" class="form-control" id="editPrice" placeholder="Enter Price">
+                    </div>
+                    <div class="form-group">
+                        <label for="editDesc">Description</label>
+                        <input type="text" class="form-control" id="editDesc" placeholder="Enter Description">
+                    </div>
+                    <div class="form-group">
+                        <label for="editImg">Image</label>
+                        <input type="text" class="form-control" id="editImg" placeholder="Enter Image URL">
+                    </div>
+                    <div class="form-group">
+                        <label for="editIsActive">Active</label>
+                        <input type="checkbox" id="editIsActive">
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                    <button type="button" class="btn btn-primary" onclick="saveEdit()">Save</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    <script>
+        let products = JSON.parse(localStorage.getItem("products")) || [];
+        let tbody = document.getElementById("tbody");
+
+        // Add product
+        function addProduct() {
+            let productName = document.getElementById("addPname").value;
+            let price = document.getElementById("addPrice").value;
+            let desc = document.getElementById("addDesc").value;
+            let img = document.getElementById("addImg").value;
+            let product = {
+                productName,
+                price,
+                desc,
+                img,
+                isActive: true,
+            };
+            products.push(product);
+            localStorage.setItem("products", JSON.stringify(products));
+            location.reload();
+        }
+
+        // Load products
+        function loadProduct() {
+            products.map((val, index) => {
+                let tr = document.createElement("tr");
+                tr.innerHTML = `
+                    <td>${index + 1}</td>
+                    <td><img src='${val.img}' height=50 width=50/></td>
+                    <td>${val.productName}</td>
+                    <td>${val.price}</td>
+                    <td>${val.desc}</td>
+                    <td><button class="btn btn-warning" onclick="editProduct(${index})">Edit</button></td>
+                    <td><button class="btn btn-danger" onclick="deleteProduct(${index})">Delete</button></td>
+                    <td>
+                        <div class="input-group mb-3">
+                            <div class="input-group-prepend">
+                                <div class="input-group-text">
+                                    <input type="checkbox" aria-label="Checkbox for following text input" ${val.isActive ? "checked" : ""} onchange="toggleActive(${index}, this.checked)">
+                                </div>
+                            </div>
+                        </div>
+                    </td>
+                `;
+                tbody.appendChild(tr);
+            });
+        }
+
+        loadProduct();
+
+        // Delete product
+        function deleteProduct(index) {
+            products.splice(index, 1);
+            localStorage.setItem("products", JSON.stringify(products));
+            location.reload();
+        }
+
+        // Edit product
+        function editProduct(index) {
+            let product = products[index];
+            document.getElementById("editIndex").value = index;
+            document.getElementById("editPname").value = product.productName;
+            document.getElementById("editPrice").value = product.price;
+            document.getElementById("editDesc").value = product.desc;
+            document.getElementById("editImg").value = product.img;
+            document.getElementById("editIsActive").checked = product.isActive;
+            let editModal = new bootstrap.Modal(document.getElementById('editModal'));
+            editModal.show();
+        }
+
+        // Toggle active state
+        function toggleActive(index, isActive) {
+            products[index].isActive = isActive;
+            localStorage.setItem("products", JSON.stringify(products));
+        }
+    </script>
+</body>
+</html>
